@@ -1,0 +1,211 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+# エラーハンドリング
+
+## 基本原則
+- エラーは早期に検出し、適切な型で表現する
+- エラーメッセージは多言語対応を考慮
+- エラーログは適切なレベルで出力
+- 再試行可能なエラーは適切にリトライ
+- エラーの種類に応じた適切な処理を実装
+- すべてのエラー関連の型は`type`で定義
+- すべてのオブジェクト型は`readonly`を付与
+- 配列は`ReadonlyArray`を使用
+
+## エラー型の基本定義
+```typescript
+// 基本エラー型の定義
+type BaseErrorType = 
+  | "VALIDATION" 
+  | "NETWORK" 
+  | "AUTH" 
+  | "RATE_LIMIT" 
+  | "TIMEOUT" 
+  | "BUSINESS" 
+  | "SYSTEM";
+
+// エラーコードの定義
+type ErrorCode = Readonly<{
+  code: number;
+  type: BaseErrorType;
+  message: string;
+  retryable: boolean;
+}>;
+
+// エラーコードのマッピング
+type ErrorCodeMap = Readonly<{
+  [K in BaseErrorType]: ReadonlyArray<ErrorCode>;
+}>;
+```
+
+## エラー結果と処理
+```typescript
+// エラー結果の型
+type ErrorResult<T, E = Error> = Result<T, E>;
+
+// エラーハンドラーの型
+type ErrorHandler<T, E> = (error: E) => ErrorResult<T>;
+
+// エラー処理結果
+type ErrorHandlingResult<T> = Readonly<{
+  success: boolean;
+  result?: T;
+  error?: StructuredError;
+  retryCount: number;
+  duration: number;
+}>;
+```
+
+## エラーコンテキストと構造化
+```typescript
+// エラーコンテキスト
+type ErrorContext = Readonly<{
+  timestamp: Date;
+  traceId: string;
+  source: string;
+  severity: "low" | "medium" | "high" | "critical";
+}>;
+
+// 構造化エラー
+type StructuredError = Readonly<{
+  type: BaseErrorType;
+  code: number;
+  message: string;
+  context: ErrorContext;
+  cause?: StructuredError;
+}>;
+
+// エラーチェーン
+type ErrorChain = Readonly<{
+  current: StructuredError;
+  previous: ReadonlyArray<StructuredError>;
+}>;
+```
+
+## リトライ処理
+```typescript
+// リトライ設定
+type RetryConfig = Readonly<{
+  maxAttempts: number;
+  initialDelay: number;
+  maxDelay: number;
+  backoffFactor: number;
+  retryableErrors: ReadonlyArray<BaseErrorType>;
+}>;
+
+// リトライ操作
+type RetryOperation<T> = (
+  operation: SafeOperation<T>,
+  config: RetryConfig
+) => SafeOperation<T>;
+```
+
+## エラー型の検証と変換
+```typescript
+// エラー型ガード
+type IsErrorType = <T extends BaseErrorType>(
+  error: unknown,
+  type: T
+) => error is StructuredError & { type: T };
+
+// エラー変換
+type ErrorTransformer<T extends Error, E extends StructuredError> = (
+  error: T,
+  context: ErrorContext
+) => E;
+```
+
+## ログとモニタリング
+```typescript
+// エラーログ
+type ErrorLog = Readonly<{
+  level: "debug" | "info" | "warn" | "error" | "fatal";
+  error: StructuredError;
+  metadata: Readonly<Record<string, unknown>>;
+}>;
+
+// エラーメトリクス
+type ErrorMetrics = Readonly<{
+  type: BaseErrorType;
+  count: number;
+  lastOccurred: Date;
+  meanResponseTime: number;
+  retryAttempts: number;
+}>;
+```
+
+## テストとバリデーション
+```typescript
+// エラーテストケース
+type ErrorTestCase = Readonly<{
+  input: unknown;
+  expectedError: StructuredError;
+  context: ErrorContext;
+}>;
+
+// 安全な操作型
+type SafeOperation<T> = (input: T) => Promise<ErrorResult<T>>;
+```
+
+## 実装例
+```typescript
+// エラーハンドリングのラッパー
+const withErrorHandling = <T>(
+  operation: SafeOperation<T>,
+  context: ErrorContext
+): SafeOperation<T> => {
+  return async (input: T): Promise<ErrorResult<T>> => {
+    try {
+      return await operation(input);
+    } catch (error: unknown) {
+      return {
+        type: "failure",
+        error: createStructuredError(error, context)
+      } as const;
+    }
+  };
+};
+
+// リトライ処理の実装
+const withRetry: RetryOperation<unknown> = (operation, config) => {
+  return async (input) => {
+    let attempts = 0;
+    let lastError: StructuredError | undefined;
+
+    while (attempts < config.maxAttempts) {
+      const result = await operation(input);
+      if (result.type === "success") return result;
+
+      lastError = result.error;
+      if (!isRetryableError(lastError, config.retryableErrors)) break;
+
+      attempts++;
+      await delay(calculateBackoff(attempts, config));
+    }
+
+    return {
+      type: "failure",
+      error: lastError as StructuredError
+    } as const;
+  };
+};
+```
+
+## エラー処理のベストプラクティス
+- エラーは値として扱い、例外としてではなく戻り値として返す
+- エラーの型は可能な限り具体的に定義する
+- エラー処理は合成可能な関数として実装する
+- エラーコンテキストは必ず付与する
+- リトライ可能なエラーは明確に識別する
+- エラーログは構造化して出力する
+- エラーメトリクスは定期的に収集・分析する
+
+## エラー処理の監視と改善
+- エラー発生率の監視
+- リトライ成功率の分析
+- エラーパターンの特定と対策
+- エラー処理の性能測定
+- エラーハンドリングコードの定期的なレビュー

@@ -1,0 +1,116 @@
+---
+description: 
+globs: *.test.ts
+alwaysApply: false
+---
+# テスト規約
+
+## 基本設定
+- テストフレームワーク: bun
+- テストディレクトリ: `tests/`
+- 全てのテストを実施する時は `bun test` を実行する
+- `vitest`や`jest`を使わない
+- モックについては`.cursor/rules/bun-test-mock`を参照
+- テストカバレッジは80%以上を維持
+- エッジケースのテストを必ず含める
+
+## TDDサイクル
+1. Red: 失敗するテストを書く
+   - 1つのテストケースのみ追加
+   - テスト失敗の確認を必ず行う
+   - テストの意図と期待する失敗を明確に説明
+   ```bash
+   # テストの実行で失敗を確認
+   bun test path/to/test.ts
+   ```
+
+2. Green: 最小限の実装でテストを通す
+   - テストを通すための最小限の実装のみ行う
+   - 複雑な実装は避け、単純な実装から始める
+   - 型の定義は必要最小限から開始
+   ```bash
+   # テストが通ることを確認
+   bun test path/to/test.ts
+   ```
+
+3. Refactor: コードの品質を改善
+   - 命名の改善
+   - 重複の除去
+   - 責務の分離
+   - 型の厳密化
+   - パフォーマンスの改善
+   - 重複コードの共通化
+   - エラーハンドリングの統一
+   ```bash
+   # リファクタリング後もテストが通ることを確認
+   bun test path/to/test.ts
+   ```
+
+## テストケース構造
+```typescript
+/**
+ * テストケースの説明
+ * 
+ * 前提条件:
+ * - 条件1
+ * - 条件2
+ * 
+ * 期待する結果:
+ * - 結果1
+ * - 結果2
+ */
+test("テストケース名", () => {
+  // テストコード
+});
+```
+
+## テストカバレッジ要件
+```typescript
+// 基本的なテストカバレッジ
+type CoverageRequirements = Readonly<{
+  statements: number;     // 80%以上
+  branches: number;      // 80%以上
+  functions: number;     // 90%以上
+  lines: number;        // 80%以上
+}>;
+
+// エッジケースのテスト必須項目
+type EdgeCaseTests = Readonly<{
+  nullValues: boolean;           // null値の処理
+  undefinedValues: boolean;      // undefined値の処理
+  emptyValues: boolean;          // 空文字列、空配列等
+  boundaryValues: boolean;       // 境界値
+  malformedInput: boolean;       // 不正な入力
+  typeErrors: boolean;           // 型エラー
+  asyncErrors: boolean;          // 非同期エラー
+}>;
+```
+
+## エラーケースのテスト要件
+```typescript
+type ErrorTestRequirements = Readonly<{
+  errorTypes: Readonly<{
+    validation: boolean;    // バリデーションエラー
+    network: boolean;       // ネットワークエラー
+    timeout: boolean;       // タイムアウト
+    auth: boolean;         // 認証エラー
+    permission: boolean;   // 権限エラー
+  }>;
+  
+  errorHandling: Readonly<{
+    recovery: boolean;     // エラーからの回復
+    retry: boolean;       // リトライ処理
+    fallback: boolean;    // フォールバック処理
+    cleanup: boolean;     // リソースのクリーンアップ
+  }>;
+  
+  errorLogging: Readonly<{
+    format: boolean;      // ログフォーマット
+    level: boolean;      // ログレベル
+    context: boolean;    // コンテキスト情報
+  }>;
+}>;
+```
+
+## bunでモックする時
+bunでモックする時は [bun-test-mock.mdc](mdc:.cursor/rules/bun-test-mock.mdc) を参考にする

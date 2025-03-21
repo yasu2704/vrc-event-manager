@@ -1,0 +1,353 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# VRChatイベント管理システム基本設計書（改訂版）
+
+## 1. システム概要
+
+### 1.1 目的
+VRChatで開催されるイベントを効率的に管理し、イベント主催者と出演者間の情報共有をスムーズに行うためのWebアプリケーションを開発する。
+
+### 1.2 対象ユーザー
+- イベント主催者：イベントの企画・運営を行うユーザー
+- 出演者：イベントに参加・出演するユーザー
+
+### 1.3 システム規模
+- 初期想定ユーザー数：主催者5～10人、出演者は各イベント3～6人程度
+- イベント頻度：主催者1人あたり月最大4回
+- 段階的にユーザー数を拡大予定
+
+## 2. システムアーキテクチャ
+
+### 2.1 全体構成
+- フロントエンド：Next.js / React Router v7（未決定）
+- バックエンド：Hono + GraphQL
+- データベース：Supabase / Cloudflare D1（RSL対応を条件に検討）
+- キャッシュ：Cloudflare KV（必要に応じて）
+- ホスティング：Cloudflare Pages / Workers
+
+### 2.2 技術スタック
+- 言語：TypeScript
+- UIライブラリ：shadcn/ui
+- パッケージマネージャー：bun
+- テストフレームワーク：bun:test
+- コード整形：biome
+- CI/CD：GitHub Actions
+- 開発環境：Node.js LTS、Cursor（エディタ）
+
+### 2.3 システム構成図
+```
+[クライアント] - Web Browser (PC / Mobile)
+    |
+    | HTTPS
+    v
+[フロントエンド] - Cloudflare Pages
+    |
+    | API Calls (GraphQL)
+    v
+[バックエンド] - Cloudflare Workers + Hono
+    |
+    | Database Access
+    v
+[データベース] - Supabase / Cloudflare D1
+    |
+    | Cache (必要に応じて)
+    v
+[キャッシュ] - Cloudflare KV
+```
+
+## 3. データモデル設計
+
+### 3.1 エンティティ関連図（ER図）
+```
+User(ユーザー) 1--N Event(イベント)
+Event(イベント) 1--N Performer(出演者)
+User(ユーザー) 1--N Performer(出演者)
+```
+
+### 3.2 テーブル定義
+
+#### 3.2.1 ユーザーテーブル (users)
+| フィールド名 | データ型 | 制約 | 説明 |
+|------------|---------|------|------|
+| id | UUID | PK | ユーザーID |
+| email | VARCHAR | NOT NULL | ユーザーのメールアドレス |
+| google_id | VARCHAR | NOT NULL | GoogleアカウントID |
+| vrchat_user_id | VARCHAR | NOT NULL | VRChatのユーザーID（手入力） |
+| display_name | VARCHAR | NOT NULL | 表示名 |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
+
+#### 3.2.2 イベントテーブル (events)
+| フィールド名 | データ型 | 制約 | 説明 |
+|------------|---------|------|------|
+| id | UUID | PK | イベントID |
+| organizer_id | UUID | FK(users.id) | 主催者ID |
+| name | VARCHAR | NOT NULL | イベント名 |
+| start_datetime | TIMESTAMP | NOT NULL | 開始日時 |
+| end_datetime | TIMESTAMP | NOT NULL | 終了日時 |
+| instance_type | VARCHAR | NOT NULL | インスタンス種別（選択式） |
+| join_method | TEXT | | Join方法（自由入力） |
+| description | TEXT | | イベント概要（自由入力） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
+
+#### 3.2.3 出演者テーブル (performers)
+| フィールド名 | データ型 | 制約 | 説明 |
+|------------|---------|------|------|
+| id | UUID | PK | 出演者ID |
+| event_id | UUID | FK(events.id) | イベントID |
+| user_id | UUID | FK(users.id) | ユーザーID |
+| start_time | TIMESTAMP | NOT NULL | 出演開始時間 |
+| end_time | TIMESTAMP | NOT NULL | 出演終了時間 |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
+
+### 3.3 インデックス設計
+- イベントテーブル: `organizer_id`, `start_datetime`, `end_datetime`のインデックス作成
+- 出演者テーブル: `event_id`, `user_id`, `start_time`のインデックス作成
+- ユーザーテーブル: `google_id`, `vrchat_user_id`のインデックス作成
+
+## 4. 機能設計
+
+### 4.1 認証機能
+- Googleアカウントを利用したSSO認証
+- 認証フロー
+  1. Googleログインボタンの表示
+  2. Googleアカウント選択・認証
+  3. 認証成功時にシステムへログイン
+  4. 初回ログイン時はVRChatユーザーID入力画面へ遷移
+
+### 4.2 ユーザー管理機能
+- プロフィール管理
+  - VRChatユーザーIDの登録・編集
+  - 表示名の設定
+
+### 4.3 イベント管理機能
+- イベント作成機能
+  - イベント基本情報（名前、日時、場所等）の入力
+  - インスタンス種別の選択
+  - Join方法の入力
+  - イベント概要の入力
+- イベント編集機能
+  - 既存イベント情報の変更
+- イベント一覧表示機能
+  - リスト表示
+  - カレンダー表示
+
+### 4.4 出演者管理機能
+- 出演者の追加・削除
+- 出演時間の設定
+
+### 4.5 外部連携機能
+- Googleカレンダー連携
+  - ユーザーが選択したイベントをGoogleカレンダーに登録
+
+## 5. 画面設計
+
+### 5.1 画面一覧
+1. ログイン画面（GoogleSSO）
+2. VRChatユーザーID登録画面（初回ログイン時）
+3. イベント一覧画面（リスト表示）
+4. イベント一覧画面（カレンダー表示）
+5. イベント作成画面
+6. イベント編集画面
+7. イベント詳細画面
+8. ユーザープロフィール画面
+
+### 5.2 画面遷移図
+```
+[ログイン画面] --> [VRChatユーザーID登録画面]* --> [イベント一覧画面（リスト）]
+                                             |
+                                             |--> [イベント一覧画面（カレンダー）]
+                                             |
+                                             |--> [イベント作成画面] --> [イベント詳細画面]
+                                             |
+                                             |--> [イベント詳細画面] --> [イベント編集画面] --> [イベント詳細画面]
+                                             |
+                                             |--> [ユーザープロフィール画面]
+
+* 初回ログイン時のみ
+```
+
+### 5.3 レスポンシブデザイン方針
+- PCとモバイルの両方を同等に重視したデザイン
+- shadcn/uiを活用した一貫性のあるUIデザイン
+- ブレークポイント設定：
+  - モバイル: 〜767px
+  - タブレット: 768px〜1023px
+  - デスクトップ: 1024px〜
+
+## 6. API設計
+
+### 6.1 GraphQL API
+- スキーマ設計（主要なクエリとミューテーション）
+
+```graphql
+type User {
+  id: ID!
+  email: String!
+  googleId: String!
+  vrchatUserId: String!
+  displayName: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Event {
+  id: ID!
+  organizer: User!
+  name: String!
+  startDatetime: DateTime!
+  endDatetime: DateTime!
+  instanceType: String!
+  joinMethod: String
+  description: String
+  performers: [Performer!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Performer {
+  id: ID!
+  event: Event!
+  user: User!
+  startTime: DateTime!
+  endTime: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  # ユーザー関連
+  me: User
+  user(id: ID!): User
+  
+  # イベント関連
+  events(filter: EventFilter): [Event!]!
+  event(id: ID!): Event
+  myEvents(userType: UserType): [Event!]!
+}
+
+type Mutation {
+  # ユーザー関連
+  updateProfile(input: UpdateProfileInput!): User!
+  
+  # イベント関連
+  createEvent(input: CreateEventInput!): Event!
+  updateEvent(id: ID!, input: UpdateEventInput!): Event!
+  deleteEvent(id: ID!): Boolean!
+  
+  # 出演者関連
+  addPerformer(eventId: ID!, input: AddPerformerInput!): Performer!
+  updatePerformer(id: ID!, input: UpdatePerformerInput!): Performer!
+  removePerformer(id: ID!): Boolean!
+}
+
+input UpdateProfileInput {
+  vrchatUserId: String
+  displayName: String
+}
+
+input EventFilter {
+  startDate: DateTime
+  endDate: DateTime
+  organizerId: ID
+}
+
+enum UserType {
+  ORGANIZER
+  PERFORMER
+}
+
+input CreateEventInput {
+  name: String!
+  startDatetime: DateTime!
+  endDatetime: DateTime!
+  instanceType: String!
+  joinMethod: String
+  description: String
+}
+
+input UpdateEventInput {
+  name: String
+  startDatetime: DateTime
+  endDatetime: DateTime
+  instanceType: String
+  joinMethod: String
+  description: String
+}
+
+input AddPerformerInput {
+  userId: ID!
+  startTime: DateTime!
+  endTime: DateTime!
+}
+
+input UpdatePerformerInput {
+  startTime: DateTime
+  endTime: DateTime
+}
+```
+
+## 7. 開発計画
+
+### 7.1 開発優先順位
+1. Google SSO認証機能とVRChatユーザーID登録
+2. イベント作成機能
+3. イベント一覧表示（リスト表示）
+4. イベント一覧表示（カレンダー表示）
+5. イベント編集機能
+
+### 7.2 開発フェーズ
+- フェーズ1: 基本機能実装（MVPリリース）
+  - Google SSO認証機能
+  - VRChatユーザーID登録
+  - イベント作成・一覧表示
+  - 出演者管理基本機能
+- フェーズ2: 追加機能実装
+  - カレンダー表示
+  - Googleカレンダー連携
+  - UIの改善
+- フェーズ3: 拡張機能実装
+  - タイムラインビュー
+  - 追加の外部連携
+
+### 7.3 テスト計画
+- ユニットテスト: bun:testを使用
+- テスト対象
+  - APIロジック
+  - データアクセス層
+  - UIコンポーネント
+
+## 8. 非機能要件設計
+
+### 8.1 パフォーマンス設計
+- 画面表示速度: 3秒以内
+- 同時接続ユーザー数: 最大100名程度
+- ページロード最適化:
+  - 静的アセットのキャッシュ最適化
+  - 画像の最適化
+
+### 8.2 セキュリティ設計
+- GoogleSSOによる安全な認証
+- APIリクエスト認証
+- CSRF対策
+- XSS対策
+
+### 8.3 バックアップ計画
+- 後日検討
+
+## 9. 将来拡張計画
+
+### 9.1 タイムラインビュー
+- 後日検討
+
+### 9.2 多言語対応
+- 後日検討
+
+### 9.3 追加機能
+- コミュニケーション機能
+- 運用状況の可視化ダッシュボード

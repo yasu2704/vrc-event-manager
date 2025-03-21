@@ -1,0 +1,97 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+# 実装ルール
+
+## コーディング規約
+- TypeScriptで実装し型も省略せずに実装
+- ランタイムはbunを利用
+- コーディングスタイルはbiomeに準拠
+- 基本的にはシンプルな関数型アプローチでコーディング
+- anyの使用を避け、unknownから型を絞り込む
+- 型の再利用性と拡張性を考慮する
+- エラーは早期に検出し、適切な型で表現する
+
+## 型定義規約
+1. 基本ルール
+   - 型定義はすべて`type`を使用（`interface`は使用しない）
+   - すべてのオブジェクト型プロパティは`readonly`を付与
+   - 型の拡張は合成（Composition）で行う
+   - 共用体型（Union Types）と直積型（Product Types）を活用
+
+2. データ型定義
+   ```typescript
+   // 基本的なデータ型
+   type User = Readonly<{
+     id: string;
+     name: string;
+     email: string;
+   }>;
+
+   // 合成による拡張
+   type AuthenticatedUser = Readonly<{
+     base: User;
+     token: string;
+     expiresAt: Date;
+   }>;
+   ```
+
+3. 関数型定義
+   ```typescript
+   // 関数型の定義
+   type Operation<T, U> = (input: T) => Promise<Result<U>>;
+   
+   // 高階関数の型定義
+   type OperationWithContext<T, U, C> = (
+     input: T,
+     context: Readonly<C>
+   ) => Promise<Result<U>>;
+   ```
+
+4. 代数的データ型（ADT）
+   ```typescript
+   // Sum Type（直和型）
+   type Result<T, E = Error> = 
+     | { readonly type: "success"; readonly value: T }
+     | { readonly type: "failure"; readonly error: E };
+   
+   // Product Type（直積型）
+   type Config = Readonly<{
+     host: string;
+     port: number;
+     timeout: number;
+   }>;
+   ```
+
+5. 型の合成パターン
+   ```typescript
+   // 機能の合成
+   type WithTimestamp<T> = Readonly<{
+     data: T;
+     createdAt: Date;
+     updatedAt: Date;
+   }>;
+   
+   // バリデーション結果の合成
+   type ValidationResult<T> = Readonly<{
+     value: T;
+     errors: ReadonlyArray<string>;
+     isValid: boolean;
+   }>;
+   ```
+
+6. 型ガード関数
+   ```typescript
+   // 型ガード関数の命名規則は is* を使用
+   type isSuccess = <T, E>(result: Result<T, E>) => result is { type: "success"; value: T };
+   type isFailure = <T, E>(result: Result<T, E>) => result is { type: "failure"; error: E };
+   ```
+
+7. 型のテスト
+   ```typescript
+   // 型のテストは型アサーションで実施
+   type Assert<T, Expected> = T extends Expected ? true : false;
+   type Equal<T, U> = T extends U ? U extends T ? true : false : false;
+   ```
