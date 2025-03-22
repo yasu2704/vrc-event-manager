@@ -86,7 +86,7 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
 
 ### 4.1 開発環境
 - 言語：TypeScript
-- フレームワーク：Next.js、React Router v7、Hono
+- フレームワーク：Next.js、Hono
 - データベース：Supabase、Cloudflare D1、Cloudflare KV
 - ホスティング環境：Cloudflare Pages、Cloudflare Workers
 - 認証：Google SSO

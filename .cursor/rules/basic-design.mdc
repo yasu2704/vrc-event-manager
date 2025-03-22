@@ -22,7 +22,7 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
 ## 2. システムアーキテクチャ
 
 ### 2.1 全体構成
-- フロントエンド：Next.js / React Router v7（未決定）
+- フロントエンド：Next.js
 - バックエンド：Hono + GraphQL
 - データベース：Supabase / Cloudflare D1（RSL対応を条件に検討）
 - キャッシュ：Cloudflare KV（必要に応じて）
@@ -43,7 +43,7 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
     |
     | HTTPS
     v
-[フロントエンド] - Cloudflare Pages
+[フロントエンド] - Cloudflare Pages / Workers
     |
     | API Calls (GraphQL)
     v
