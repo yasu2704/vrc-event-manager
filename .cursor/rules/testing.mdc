@@ -6,11 +6,8 @@ alwaysApply: false
 # テスト規約
 
 ## 基本設定
-- テストフレームワーク: bun
-- テストディレクトリ: 
-  - ユニットテスト: ソースコードと同じディレクトリ階層の `__tests__/`
-  - E2Eテスト: プロジェクトルートの `tests/e2e/`
-  - テストフィクスチャー: `tests/fixtures/`
+テストフレームワーク: bun
+※ディレクトリ構造の詳細は基本設計書（basic-design.mdc）の「10. プロジェクト構造」を参照
 - 全てのテストを実施する時は `bun test` を実行する
 - 特定のユニットテストのみ実行: `bun test path/to/__tests__/component.test.ts`
 - E2Eテストのみ実行: `bun test tests/e2e/`
