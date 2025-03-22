@@ -22,14 +22,35 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
 ## 2. システムアーキテクチャ
 
 ### 2.1 全体構成
-- フロントエンド：Next.js
+- フロントエンド：Next.js App Router
+  - ハイブリッドレンダリング（SSR/ISR/CSR）
+  - サーバーコンポーネントとクライアントコンポーネントの適切な使い分け
 - バックエンド：Hono + GraphQL
+  - セキュアなAPI提供
+  - ビジネスロジックの集中管理
 - データベース：Supabase / Cloudflare D1（RSL対応を条件に検討）
+  - データの永続化
+  - トランザクション管理
 - キャッシュ：Cloudflare KV（必要に応じて）
+  - パフォーマンス最適化
+  - セッション管理
 - ホスティング：Cloudflare Pages / Workers
+  - グローバルな高速配信
+  - エッジでの処理最適化
 
-### 2.2 技術スタック
-- 言語：TypeScript
+### 2.2 技術選定理由
+- Next.js App Router
+  - ハイブリッドレンダリングによる最適なパフォーマンス
+  - 段階的なローディングとストリーミングSSRのサポート
+  - TypeScriptファーストな開発体験
+- Hono
+  - 軽量で高速なAPIフレームワーク
+  - Cloudflare Workersとの親和性
+  - TypeScriptサポート
+- Cloudflareプラットフォーム
+  - グローバルなエッジネットワーク
+  - 統合されたサービス群
+  - コスト効率の良い運用
 - UIライブラリ：shadcn/ui
 - パッケージマネージャー：bun
 - テストフレームワーク：bun:test
@@ -43,19 +64,29 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
     |
     | HTTPS
     v
-[フロントエンド] - Cloudflare Pages / Workers
+[フロントエンド] - Next.js on Cloudflare Pages / Workers
+    | - SSR: 認証、プロフィール
+    | - ISR: イベント一覧
+    | - CSR: カレンダー
     |
     | API Calls (GraphQL)
     v
-[バックエンド] - Cloudflare Workers + Hono
+[バックエンド] - Hono on Cloudflare Workers
+    | - 認証・認可
+    | - ビジネスロジック
+    | - データ整合性
     |
     | Database Access
     v
 [データベース] - Supabase / Cloudflare D1
+    | - データ永続化
+    | - トランザクション
     |
     | Cache (必要に応じて)
     v
 [キャッシュ] - Cloudflare KV
+  - セッション
+  - 一時データ
 ```
 
 ## 3. データモデル設計
