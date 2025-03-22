@@ -1,0 +1,85 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# package.json テンプレート
+
+## ルートpackage.json
+```json
+{
+  "name": "vrchat-event-manager",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel dev:*",
+    "dev:frontend": "bun --cwd apps/frontend dev",
+    "dev:backend": "bun --cwd apps/backend dev",
+    "build": "bun run --sequential build:*",
+    "build:frontend": "bun --cwd apps/frontend build",
+    "build:backend": "bun --cwd apps/backend build",
+    "test": "bun test",
+    "test:e2e": "bun test tests/e2e",
+    "lint": "biome lint .",
+    "format": "biome format ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "typescript": "latest"
+  }
+}
+```
+
+## フロントエンドpackage.json
+```json
+{
+  "name": "@vrchat-event-manager/frontend",
+  "private": true,
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "@vrchat-event-manager/config": "workspace:*",
+    "@vrchat-event-manager/types": "workspace:*"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "test": "bun test"
+  }
+}
+```
+
+## バックエンドのpackage.json
+```json
+{
+  "name": "@vrchat-event-manager/backend",
+  "private": true,
+  "dependencies": {
+    "hono": "latest",
+    "@vrchat-event-manager/config": "workspace:*",
+    "@vrchat-event-manager/types": "workspace:*"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts",
+    "test": "bun test"
+  }
+}
+```
+
+## 共有パッケージのpackage.json
+```json
+{
+  "name": "@vrchat-event-manager/types",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "typescript": "latest"
+  }
+}
+```

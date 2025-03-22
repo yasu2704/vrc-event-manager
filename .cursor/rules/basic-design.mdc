@@ -412,3 +412,56 @@ input UpdatePerformerInput {
 - E2Eテスト: `*.spec.ts`
 - テストヘルパー: `*.helper.ts`
 - モックデータ: `*.mock.ts`
+
+### 10.4 パッケージ管理構造
+```
+プロジェクトルート/
+├── package.json           # ルートの package.json（ワークスペース設定）
+├── apps/
+│   ├── frontend/
+│   │   └── package.json  # フロントエンド固有の依存関係
+│   └── backend/
+│       └── package.json  # バックエンド固有の依存関係
+└── packages/
+    ├── config/
+    │   └── package.json  # 設定パッケージの依存関係
+    └── types/
+        └── package.json  # 共有型定義パッケージの依存関係
+```
+
+#### 10.4.1 パッケージ命名規則
+- プロジェクトスコープ: `@vrchat-event-manager`
+- 各パッケージ名:
+  - フロントエンド: `@vrchat-event-manager/frontend`
+  - バックエンド: `@vrchat-event-manager/backend`
+  - 共有設定: `@vrchat-event-manager/config`
+  - 共有型定義: `@vrchat-event-manager/types`
+
+#### 10.4.2 依存関係管理
+- ワークスペース間の参照: `workspace:*`を使用
+- 共有パッケージは内部パッケージとして管理
+- すべてのパッケージで`private: true`を設定
+
+#### 10.4.3 スクリプト実行規則
+```bash
+# 開発環境起動
+bun run dev              # すべてのアプリケーションを起動
+bun run dev:frontend    # フロントエンドのみ起動
+bun run dev:backend     # バックエンドのみ起動
+
+# ビルド
+bun run build           # すべてをビルド
+bun run build:frontend  # フロントエンドのみビルド
+bun run build:backend   # バックエンドのみビルド
+
+# テスト
+bun test               # すべてのテストを実行
+bun test tests/e2e     # E2Eテストのみ実行
+
+# リント・フォーマット
+bun run lint          # biomeによるリント
+bun run format        # biomeによるフォーマット
+```
+
+#### 10.4.4 package.jsonの基本構成
+各package.jsonの基本構成については、`.cursor/rules/package-json-template.mdc`を参照してください。
