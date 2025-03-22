@@ -7,12 +7,42 @@ alwaysApply: false
 
 ## 基本設定
 - テストフレームワーク: bun
-- テストディレクトリ: `tests/`
+- テストディレクトリ: 
+  - ユニットテスト: ソースコードと同じディレクトリ階層の `__tests__/`
+  - E2Eテスト: プロジェクトルートの `tests/e2e/`
+  - テストフィクスチャー: `tests/fixtures/`
 - 全てのテストを実施する時は `bun test` を実行する
+- 特定のユニットテストのみ実行: `bun test path/to/__tests__/component.test.ts`
+- E2Eテストのみ実行: `bun test tests/e2e/`
 - `vitest`や`jest`を使わない
 - モックについては`.cursor/rules/bun-test-mock`を参照
 - テストカバレッジは80%以上を維持
 - エッジケースのテストを必ず含める
+
+## ディレクトリ構造
+```
+src/
+├── components/
+│   ├── __tests__/           # コンポーネントのユニットテスト
+│   │   ├── helpers/         # テスト用ヘルパー
+│   │   ├── mocks/          # モックデータ
+│   │   └── *.test.ts       # テストファイル
+│   └── Component.tsx        # テスト対象のコンポーネント
+
+tests/
+├── e2e/                     # E2Eテスト
+│   ├── auth.spec.ts
+│   └── events.spec.ts
+└── fixtures/                # テスト用フィクスチャー
+    ├── users.json
+    └── events.json
+```
+
+## ファイル命名規則
+- ユニットテスト: `*.test.ts`
+- E2Eテスト: `*.spec.ts`
+- テストヘルパー: `*.helper.ts`
+- モックデータ: `*.mock.ts`
 
 ## TDDサイクル
 1. Red: 失敗するテストを書く
@@ -21,7 +51,7 @@ alwaysApply: false
    - テストの意図と期待する失敗を明確に説明
    ```bash
    # テストの実行で失敗を確認
-   bun test path/to/test.ts
+   bun test path/to/__tests__/component.test.ts
    ```
 
 2. Green: 最小限の実装でテストを通す
@@ -30,7 +60,7 @@ alwaysApply: false
    - 型の定義は必要最小限から開始
    ```bash
    # テストが通ることを確認
-   bun test path/to/test.ts
+   bun test path/to/__tests__/component.test.ts
    ```
 
 3. Refactor: コードの品質を改善
@@ -43,7 +73,7 @@ alwaysApply: false
    - エラーハンドリングの統一
    ```bash
    # リファクタリング後もテストが通ることを確認
-   bun test path/to/test.ts
+   bun test path/to/__tests__/component.test.ts
    ```
 
 ## テストケース構造
@@ -59,9 +89,29 @@ alwaysApply: false
  * - 結果1
  * - 結果2
  */
-test("テストケース名", () => {
-  // テストコード
+describe("コンポーネント名 or 機能名", () => {
+  describe("テストグループ", () => {
+    test("テストケース名", () => {
+      // テストコード
+    });
+  });
 });
+```
+
+## テストの種類と配置
+```typescript
+type TestTypes = {
+  unit: {
+    location: "__tests__/";
+    naming: "*.test.ts";
+    scope: "単一の関数やコンポーネント";
+  };
+  e2e: {
+    location: "tests/e2e/";
+    naming: "*.spec.ts";
+    scope: "複数の機能を跨ぐフロー";
+  };
+};
 ```
 
 ## テストカバレッジ要件
