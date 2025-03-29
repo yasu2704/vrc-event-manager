@@ -8,13 +8,17 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "hono": "^4.7.5",
     "@vrchat-event-manager/config": "workspace:*",
-    "@vrchat-event-manager/types": "workspace:*"
+    "@vrchat-event-manager/types": "workspace:*",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.41.0",
+    "hono": "^4.7.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^0.1.15",
     "@cloudflare/workers-types": "^4.20250214.0",
+    "drizzle-kit": "^0.30.6",
+    "tsx": "^4.19.3",
     "vite": "^6.1.1",
     "vite-plugin-ssr-hot-reload": "^0.2.2",
     "wrangler": "^4.4.0"

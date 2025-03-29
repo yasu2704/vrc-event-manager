@@ -242,7 +242,7 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
 - バックエンド：Hono + GraphQL
   - セキュアなAPI提供
   - ビジネスロジックの集中管理
-- データベース：Supabase / Cloudflare D1（RSL対応を条件に検討）
+- データベース：Cloudflare D1
   - データの永続化
   - トランザクション管理
 - キャッシュ：Cloudflare KV（必要に応じて）
@@ -292,7 +292,7 @@ VRChatで開催されるイベントを効率的に管理し、イベント主�
     |
     | Database Access
     v
-[データベース] - Supabase / Cloudflare D1
+[データベース] - Cloudflare D1
     | - データ永続化
     | - トランザクション
     |
@@ -436,7 +436,6 @@ type User {
   email: String!
   googleId: String!
   vrchatUserId: String!
-  displayName: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -610,7 +609,6 @@ input UpdatePerformerInput {
 │   │   │   └── api/           # APIルート
 │   │   ├── components/        # UIコンポーネント
 │   │   │   ├── auth/         # 認証関連
-│   │   │   │   ├── __tests__/  # コンポーネントのテスト
 │   │   │   │   └── ...
 │   │   │   ├── events/       # イベント関連
 │   │   │   ├── layout/       # レイアウト
@@ -619,20 +617,23 @@ input UpdatePerformerInput {
 │   │   │   ├── auth/         # 認証ロジック
 │   │   │   ├── api/          # APIクライアント
 │   │   │   └── utils/        # 汎用ユーティリティ
+│   │   ├── tests/            # テスト
+│   │   │   └── components/   # コンポーネントのテスト
 │   │   └── types/            # 型定義
 │   │
 │   └── backend/               # バックエンドアプリケーション（Hono）
 │       ├── src/
 │       │   ├── handlers/     # リクエストハンドラー
-│       │   │   ├── __tests__/  # ハンドラーのテスト
 │       │   │   └── ...
 │       │   ├── middleware/   # ミドルウェア
 │       │   ├── models/       # データモデル
 │       │   ├── services/     # ビジネスロジック
-│       │   │   ├── __tests__/  # サービスのテスト
 │       │   │   └── ...
 │       │   └── utils/        # ユーティリティ
-│       └── graphql/          # GraphQLスキーマ
+│       ├── graphql/          # GraphQLスキーマ
+│       └── tests/            # テスト
+│           ├── handlers/     # ハンドラーのテスト
+│           └── services/     # サービスのテスト
 │
 ├── packages/                  # 共有パッケージ
 │   ├── config/               # 共通設定
@@ -647,7 +648,7 @@ input UpdatePerformerInput {
 ```
 
 ### 10.2 テストファイルの配置規則
-- ユニットテスト: ソースコードと同じディレクトリ階層の `__tests__/` に配置
+- ユニットテスト: フロントエンドおよびバックエンド階層の `tests/` に配置
 - E2Eテスト: プロジェクトルートの `tests/e2e/` に配置
 - テストフィクスチャー: `tests/fixtures/` に配置
 
