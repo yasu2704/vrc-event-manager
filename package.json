@@ -2,23 +2,26 @@
     "name": "vrchat-event-manager",
     "private": true,
     "workspaces": [
-      "apps/*",
-      "packages/*"
+        "apps/*",
+        "packages/*"
     ],
     "scripts": {
-      "dev": "bun run --parallel dev:*",
-      "dev:frontend": "bun --cwd apps/frontend dev",
-      "dev:backend": "bun --cwd apps/backend dev",
-      "build": "bun run --sequential build:*",
-      "build:frontend": "bun --cwd apps/frontend build",
-      "build:backend": "bun --cwd apps/backend build",
-      "test": "bun test",
-      "test:e2e": "bun test tests/e2e",
-      "lint": "biome lint .",
-      "format": "biome format ."
+        "dev": "bun run --parallel dev:*",
+        "dev:frontend": "bun --cwd apps/frontend dev",
+        "dev:backend": "bun --cwd apps/backend dev",
+        "build": "bun run --sequential build:*",
+        "build:frontend": "bun --cwd apps/frontend build",
+        "build:backend": "bun --cwd apps/backend build",
+        "test": "bun test",
+        "test:e2e": "bun test tests/e2e",
+        "lint": "biome lint .",
+        "format": "biome format ."
     },
     "devDependencies": {
-      "@biomejs/biome": "latest",
-      "typescript": "latest"
+        "@biomejs/biome": "latest",
+        "typescript": "latest"
+    },
+    "dependencies": {
+        "chalk": "^5.4.1"
     }
-  }
+}
