@@ -6,12 +6,12 @@
         "packages/*"
     ],
     "scripts": {
-        "dev": "bun run --parallel dev:*",
-        "dev:frontend": "bun --cwd apps/frontend dev",
-        "dev:backend": "bun --cwd apps/backend dev",
+        "dev": "bun run dev:frontend && bun run dev:backend",
+        "dev:frontend": "bun run --cwd apps/frontend dev",
+        "dev:backend": "bun run --cwd apps/backend dev",
         "build": "bun run --sequential build:*",
-        "build:frontend": "bun --cwd apps/frontend build",
-        "build:backend": "bun --cwd apps/backend build",
+        "build:frontend": "bun run --cwd apps/frontend build",
+        "build:backend": "bun run --cwd apps/backend build",
         "test": "bun test",
         "test:e2e": "bun test tests/e2e",
         "lint": "biome lint .",

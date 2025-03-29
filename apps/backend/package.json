@@ -3,12 +3,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "preview": "wrangler dev",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "hono": "^4.7.5"
+    "hono": "^4.7.5",
+    "@vrchat-event-manager/config": "workspace:*",
+    "@vrchat-event-manager/types": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^0.1.15",

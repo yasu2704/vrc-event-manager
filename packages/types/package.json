@@ -1,0 +1,9 @@
+{
+  "name": "@vrchat-event-manager/types",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "typescript": "latest"
+  }
+}
