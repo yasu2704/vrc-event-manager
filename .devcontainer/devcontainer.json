@@ -5,14 +5,19 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
 	"features": {
-		"ghcr.io/michidk/devcontainers-features/bun:1": {}
+		"ghcr.io/devcontainers-community/features/deno:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/pnpm:2": {
+			"version": "latest"
+		}
 	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"mhutchie.git-graph",
 				"biomejs.biome",
-				"saoudrizwan.claude-dev"
+				"RooVeterinaryInc.roo-cline"
 			]
 		}
 	}
