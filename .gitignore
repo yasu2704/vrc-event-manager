@@ -30,3 +30,9 @@ coverage/
 # ログファイル
 logs/
 *.log
+
+
+# pnpm
+.pnpm-debug.log
+.pnpm-lock.yaml
+.pnpm-store/

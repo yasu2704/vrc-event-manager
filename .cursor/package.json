@@ -1,0 +1,9 @@
+{
+    "name": "cursor-rules",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "build": "deno task build"
+    }
+
+}
