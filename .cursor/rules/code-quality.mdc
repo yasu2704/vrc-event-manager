@@ -86,7 +86,7 @@ type QualityMetrics = Readonly<{
   }>;
   
   testQuality: Readonly<{
-    coverage: number;        // カバレッジ（80%以上）
+    coverage: number;        // カバレッジ（基準は .cursor/rules/testing.mdc を参照）
     assertions: number;      // アサーション数（機能ごとに最低3つ）
     scenarios: number;      // テストシナリオ数（機能ごとに最低2つ）
   }>;

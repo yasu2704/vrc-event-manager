@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## コーディング規約
 - TypeScriptで実装し型も省略せずに実装
-- ランタイムはbunを利用
+- ランタイムは apps/frontend では Node.js、それ以外のパッケージでは Deno を利用
 - コーディングスタイルはbiomeに準拠
 - 基本的にはシンプルな関数型アプローチでコーディング
 - anyの使用を避け、unknownから型を絞り込む

@@ -193,6 +193,9 @@ const withRetry: RetryOperation<unknown> = (operation, config) => {
   };
 };
 ```
+// 注: 上記の実装例では createStructuredError, isRetryableError, delay, calculateBackoff といった
+// ヘルパー関数が使用されていますが、これらの具体的な実装は省略されています。
+// 通常、これらはプロジェクト内のユーティリティモジュールなどで定義されます。
 
 ## エラー処理のベストプラクティス
 - エラーは値として扱い、例外としてではなく戻り値として返す

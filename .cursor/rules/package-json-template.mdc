@@ -15,14 +15,17 @@ alwaysApply: true
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --parallel dev:*",
-    "dev:frontend": "bun --cwd apps/frontend dev",
-    "dev:backend": "bun --cwd apps/backend dev",
-    "build": "bun run --sequential build:*",
-    "build:frontend": "bun --cwd apps/frontend build",
-    "build:backend": "bun --cwd apps/backend build",
-    "test": "bun test",
-    "test:e2e": "bun test tests/e2e",
+    "dev": "pnpm run --parallel '/^dev:.*/'",
+    "dev:frontend": "pnpm --filter @vrchat-event-manager/frontend dev",
+    "dev:backend": "pnpm --filter @vrchat-event-manager/backend dev",
+    "build": "pnpm run --parallel '/^build:.*/'",
+    "build:frontend": "pnpm --filter @vrchat-event-manager/frontend build",
+    "build:backend": "pnpm --filter @vrchat-event-manager/backend build",
+    "test": "pnpm run --parallel '/^test:.*/'",
+    "test:frontend": "pnpm --filter @vrchat-event-manager/frontend test",
+    "test:backend": "pnpm --filter @vrchat-event-manager/backend test",
+    "test:packages": "pnpm --filter './packages/**' test",
+    "test:e2e": "echo 'E2E tests not implemented yet'", # Placeholder for E2E test command
     "lint": "biome lint .",
     "format": "biome format ."
   },
@@ -48,7 +51,11 @@ alwaysApply: true
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "test": "bun test"
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "latest",
+    "happy-dom": "latest" # または jsdom など
   }
 }
 ```
@@ -64,9 +71,10 @@ alwaysApply: true
     "@vrchat-event-manager/types": "workspace:*"
   },
   "scripts": {
-    "dev": "bun run src/index.ts",
-    "build": "bun build src/index.ts",
-    "test": "bun test"
+    # 必要なパーミッションは適宜調整してください
+    "dev": "deno run --allow-net --allow-read --allow-env --watch src/index.ts",
+    # Denoは通常ビルド不要なためbuildスクリプトは削除、必要なら deno compile を使用
+    "test": "deno test --allow-net --allow-read --allow-env"
   }
 }
 ```
@@ -80,6 +88,10 @@ alwaysApply: true
   "types": "index.ts",
   "dependencies": {
     "typescript": "latest"
+  },
+  "scripts": {
+    # 共有パッケージは通常、読み取り権限のみでテスト可能と想定
+    "test": "deno test --allow-read"
   }
 }
 ```

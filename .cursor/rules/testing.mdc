@@ -6,37 +6,44 @@ alwaysApply: false
 # テスト規約
 
 ## 基本設定
-テストフレームワーク: bun
-※ディレクトリ構造の詳細は基本設計書（basic-design.mdc）の「10. プロジェクト構造」を参照
-- 全てのテストを実施する時は `bun test` を実行する
-- 特定のユニットテストのみ実行: `bun test path/to/__tests__/component.test.ts`
-- E2Eテストのみ実行: `bun test tests/e2e/`
-- `vitest`や`jest`を使わない
-- モックについては`.cursor/rules/bun-test-mock`を参照
+テストフレームワーク: apps/frontend は vitest、それ以外のパッケージは deno test
+※ディレクトリ構造の詳細は基本設計書（basic-design.mdc）の「10. プロジェクト構造」および本ファイルの「ディレクトリ構造」セクションを参照
+- 全てのテストを実施する時は `pnpm test` を実行する
+- 特定のユニットテストのみ実行:
+  - Frontend: `pnpm --filter @vrchat-event-manager/frontend test tests/components/LoginButton.test.tsx`
+  - その他: `deno test path/to/file.test.ts`
+- E2Eテストのみ実行: `pnpm test:e2e` (ルートのpackage.jsonで定義)
+- `apps/frontend` 以外では `vitest` や `jest` を使わない
+- モックについては、Vitest (`vi.mock`) や Deno Test (`Deno.test` の `mock` オプションなど) の公式ドキュメントを参照
 - テストカバレッジは80%以上を維持
 - エッジケースのテストを必ず含める
 
 ## ディレクトリ構造
-```
-src/
-├── components/
-│   ├── __tests__/           # コンポーネントのユニットテスト
-│   │   ├── helpers/         # テスト用ヘルパー
-│   │   ├── mocks/          # モックデータ
-│   │   └── *.test.ts       # テストファイル
-│   └── Component.tsx        # テスト対象のコンポーネント
-
-tests/
-├── e2e/                     # E2Eテスト
-│   ├── auth.spec.ts
-│   └── events.spec.ts
-└── fixtures/                # テスト用フィクスチャー
-    ├── users.json
-    └── events.json
-```
+- **apps/frontend**:
+  - ユニットテスト: `apps/frontend/tests/` ディレクトリ内に配置 (`*.test.ts`, `*.test.tsx`)
+  ```
+  apps/frontend/
+  ├── src/
+  │   └── components/
+  │       └── LoginButton.tsx
+  └── tests/
+      └── components/
+          └── LoginButton.test.tsx
+  ```
+- **その他のパッケージ (apps/backend, packages/*)**:
+  - ユニットテスト: 実装ファイルと同じディレクトリに配置 (`*.test.ts`)
+  ```
+  packages/types/
+  ├── index.ts
+  └── index.test.ts
+  ```
+- **E2Eテスト**:
+  - プロジェクトルートの `tests/e2e/` ディレクトリ内に配置 (`*.spec.ts`)
+- **テストフィクスチャー**:
+  - プロジェクトルートの `tests/fixtures/` ディレクトリ内に配置
 
 ## ファイル命名規則
-- ユニットテスト: `*.test.ts`
+- ユニットテスト: `*.test.ts` または `*.test.tsx` (frontend) / `*.test.ts` (その他)
 - E2Eテスト: `*.spec.ts`
 - テストヘルパー: `*.helper.ts`
 - モックデータ: `*.mock.ts`
@@ -48,7 +55,8 @@ tests/
    - テストの意図と期待する失敗を明確に説明
    ```bash
    # テストの実行で失敗を確認
-   bun test path/to/__tests__/component.test.ts
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # その他例: deno test path/to/myFunction.test.ts
    ```
 
 2. Green: 最小限の実装でテストを通す
@@ -57,7 +65,8 @@ tests/
    - 型の定義は必要最小限から開始
    ```bash
    # テストが通ることを確認
-   bun test path/to/__tests__/component.test.ts
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # その他例: deno test path/to/myFunction.test.ts
    ```
 
 3. Refactor: コードの品質を改善
@@ -70,7 +79,8 @@ tests/
    - エラーハンドリングの統一
    ```bash
    # リファクタリング後もテストが通ることを確認
-   bun test path/to/__tests__/component.test.ts
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # その他例: deno test path/to/myFunction.test.ts
    ```
 
 ## テストケース構造
@@ -99,7 +109,7 @@ describe("コンポーネント名 or 機能名", () => {
 ```typescript
 type TestTypes = {
   unit: {
-    location: "__tests__/";
+    location: "apps/frontend/tests/ (frontend), ./ (その他)";
     naming: "*.test.ts";
     scope: "単一の関数やコンポーネント";
   };
@@ -159,5 +169,3 @@ type ErrorTestRequirements = Readonly<{
 }>;
 ```
 
-## bunでモックする時
-bunでモックする時は [bun-test-mock.mdc](mdc:.cursor/rules/bun-test-mock.mdc) を参考にする
