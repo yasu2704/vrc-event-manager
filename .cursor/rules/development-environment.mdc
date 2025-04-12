@@ -1,0 +1,32 @@
+---
+description: 
+globs: .cursor/**/*,apps/backend/**/*
+alwaysApply: false
+---
+# 実行環境とタスク管理
+
+## pnpmパッケージマネージャー連携
+- pnpmの`--filter`機能とDenoタスクを組み合わせる
+  ```bash
+  pnpm --filter <packageName> exec deno task <taskName>
+  ```
+
+## deno.jsonc設定ファイル
+- すべてのDenoタスクを`deno.jsonc`の`tasks`セクションに定義する
+  ```jsonc
+  {
+    "tasks": {
+      "test:module": "deno test -A path/to/test.ts",
+      "dev:server": "deno run -A server.ts"
+    }
+  }
+  ```
+
+## 環境分離
+- Node.js/pnpmとDenoの環境をクリーンに分離
+- 移行中は両環境での動作を保証（段階的移行）
+- Denoのみの機能を使う場合は完全に分離した実装を検討
+
+## パーミッション管理
+- 必要最小限のパーミッションを指定する習慣をつける
+- テストでは`-A`フラグで全パーミッションを許可することも可
