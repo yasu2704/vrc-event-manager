@@ -1390,6 +1390,64 @@ type ErrorTestRequirements = Readonly<{
   }>;
 }>;
 ```
+## Deno テスト実装ルール
+
+### 基本原則
+- すべてのテストは`deno test`コマンドで実行可能であること
+- JSRベースのインポートを使用すること
+- 型安全性より実行時の動作を優先する場合は`--no-check`フラグを使用可能
+
+### モックとスパイの使用ガイドライン
+- `@std/testing/mock`の`spy`関数を使用する
+- スパイの配列アクセスは常に存在チェックを行う
+  ```typescript
+  // 良い例
+  for (const call of mockFunction.calls) {
+    if (call.args.length === 0) continue;
+    const arg = String(call.args[0] || "");
+    // ...処理...
+  }
+  ```
+
+### アサーション
+- `assertEquals`等の検証は存在確認のロジックを含める
+  ```typescript
+  // 良い例
+  let foundExpectedCall = false;
+  for (const call of mockFunction.calls) {
+    // 条件チェック...
+    if (条件が満たされた) {
+      foundExpectedCall = true;
+      break;
+    }
+  }
+  assertEquals(foundExpectedCall, true, "期待した呼び出しが見つかりません");
+  ```
+
+### インポートマップ
+- `deno.jsonc`ファイルでimportMapを定義する
+- JSRベースのパスを優先する
+  ```jsonc
+  {
+    "imports": {
+      "@std/assert": "jsr:@std/assert@^0.218.2",
+      "@std/fmt/colors": "jsr:@std/fmt@^0.218.2/colors",
+      // ...他のインポート
+    }
+  }
+  ```
+
+### グローバルオブジェクトのモック
+- `try...finally`パターンでモックの復元を保証する
+  ```typescript
+  const original = Deno.someFunction;
+  try {
+    Deno.someFunction = mockFunction;
+    // ...テスト...
+  } finally {
+    Deno.someFunction = original;
+  }
+  ```
 --- 終了: testing.mdc
 
 --- 開始: git.mdc
@@ -1771,3 +1829,38 @@ alwaysApply: true
 }
 ```
 --- 終了: package-json-template.mdc
+
+--- 開始: development-environment.mdc
+---
+description: 
+globs: .cursor/**/*,apps/backend/**/*
+alwaysApply: false
+---
+# 実行環境とタスク管理
+
+## pnpmパッケージマネージャー連携
+- pnpmの`--filter`機能とDenoタスクを組み合わせる
+  ```bash
+  pnpm --filter <packageName> exec deno task <taskName>
+  ```
+
+## deno.jsonc設定ファイル
+- すべてのDenoタスクを`deno.jsonc`の`tasks`セクションに定義する
+  ```jsonc
+  {
+    "tasks": {
+      "test:module": "deno test -A path/to/test.ts",
+      "dev:server": "deno run -A server.ts"
+    }
+  }
+  ```
+
+## 環境分離
+- Node.js/pnpmとDenoの環境をクリーンに分離
+- 移行中は両環境での動作を保証（段階的移行）
+- Denoのみの機能を使う場合は完全に分離した実装を検討
+
+## パーミッション管理
+- 必要最小限のパーミッションを指定する習慣をつける
+- テストでは`-A`フラグで全パーミッションを許可することも可
+--- 終了: development-environment.mdc
