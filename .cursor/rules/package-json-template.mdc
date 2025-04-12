@@ -55,7 +55,7 @@ alwaysApply: true
   },
   "devDependencies": {
     "vitest": "latest",
-    "happy-dom": "latest" # または jsdom など
+    "jsdom": "latest"
   }
 }
 ```

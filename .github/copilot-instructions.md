@@ -617,7 +617,7 @@ input UpdatePerformerInput {
 │   │   │   ├── auth/         # 認証ロジック
 │   │   │   ├── api/          # APIクライアント
 │   │   │   └── utils/        # 汎用ユーティリティ
-│   │   ├── tests/            # テスト
+│   │   ├── __tests__/            # テスト
 │   │   │   └── components/   # コンポーネントのテスト
 │   │   └── types/            # 型定義
 │   │
@@ -646,7 +646,7 @@ input UpdatePerformerInput {
 ```
 
 ### 10.2 テストファイルの配置規則
-- ユニットテスト: フロントエンドは apps/frontend/tests/ に配置。その他のパッケージは実装ファイルと同じディレクトリに *.test.ts を配置。
+- ユニットテスト: フロントエンドは apps/frontend/__tests__/ に配置。その他のパッケージは実装ファイルと同じディレクトリに *.test.ts を配置。
 - E2Eテスト: プロジェクトルートの `tests/e2e/` に配置
 - テストフィクスチャー: `tests/fixtures/` に配置
 
@@ -1232,7 +1232,7 @@ alwaysApply: false
 ※ディレクトリ構造の詳細は基本設計書（basic-design.mdc）の「10. プロジェクト構造」および本ファイルの「ディレクトリ構造」セクションを参照
 - 全てのテストを実施する時は `pnpm test` を実行する
 - 特定のユニットテストのみ実行:
-  - Frontend: `pnpm --filter @vrchat-event-manager/frontend test tests/components/LoginButton.test.tsx`
+  - Frontend: `pnpm --filter @vrchat-event-manager/frontend test __tests__/components/LoginButton.test.tsx`
   - その他: `deno test path/to/file.test.ts`
 - E2Eテストのみ実行: `pnpm test:e2e` (ルートのpackage.jsonで定義)
 - `apps/frontend` 以外では `vitest` や `jest` を使わない
@@ -1248,7 +1248,7 @@ alwaysApply: false
   ├── src/
   │   └── components/
   │       └── LoginButton.tsx
-  └── tests/
+  └── __tests__/
       └── components/
           └── LoginButton.test.tsx
   ```
@@ -1277,7 +1277,7 @@ alwaysApply: false
    - テストの意図と期待する失敗を明確に説明
    ```bash
    # テストの実行で失敗を確認
-   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test __tests__/components/MyComponent.test.tsx
    # その他例: deno test path/to/myFunction.test.ts
    ```
 
@@ -1287,7 +1287,7 @@ alwaysApply: false
    - 型の定義は必要最小限から開始
    ```bash
    # テストが通ることを確認
-   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test __tests__/components/MyComponent.test.tsx
    # その他例: deno test path/to/myFunction.test.ts
    ```
 
@@ -1301,7 +1301,7 @@ alwaysApply: false
    - エラーハンドリングの統一
    ```bash
    # リファクタリング後もテストが通ることを確認
-   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test tests/components/MyComponent.test.tsx
+   # Frontend例: pnpm --filter @vrchat-event-manager/frontend test __tests__/components/MyComponent.test.tsx
    # その他例: deno test path/to/myFunction.test.ts
    ```
 
@@ -1788,7 +1788,7 @@ alwaysApply: true
   },
   "devDependencies": {
     "vitest": "latest",
-    "happy-dom": "latest" # または jsdom など
+    "jsdom": "latest"
   }
 }
 ```

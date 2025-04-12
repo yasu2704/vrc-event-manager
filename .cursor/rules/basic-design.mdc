@@ -403,7 +403,7 @@ input UpdatePerformerInput {
 │   │   │   ├── auth/         # 認証ロジック
 │   │   │   ├── api/          # APIクライアント
 │   │   │   └── utils/        # 汎用ユーティリティ
-│   │   ├── tests/            # テスト
+│   │   ├── __tests__/            # テスト
 │   │   │   └── components/   # コンポーネントのテスト
 │   │   └── types/            # 型定義
 │   │
@@ -432,7 +432,7 @@ input UpdatePerformerInput {
 ```
 
 ### 10.2 テストファイルの配置規則
-- ユニットテスト: フロントエンドは apps/frontend/tests/ に配置。その他のパッケージは実装ファイルと同じディレクトリに *.test.ts を配置。
+- ユニットテスト: フロントエンドは apps/frontend/__tests__/ に配置。その他のパッケージは実装ファイルと同じディレクトリに *.test.ts を配置。
 - E2Eテスト: プロジェクトルートの `tests/e2e/` に配置
 - テストフィクスチャー: `tests/fixtures/` に配置
 
